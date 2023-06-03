@@ -21,9 +21,9 @@ return [
             ],
         ],
         'rpc' => [
-            'key' => env('CONFIG_QUEUE') . 'micro_a_rpc',
-            'queue' => env('CONFIG_QUEUE') . 'micro_a_rpc',
-            'exchange' => env('CONFIG_QUEUE') . 'micro_a_rpc'
+            'key' => 'micro_a_rpc',
+            'queue' => 'micro_a_rpc',
+            'exchange' => 'micro_a_rpc'
         ],
         'worker' => [
             'queue' => 'micro_a_worker_queue'
