@@ -12,21 +12,19 @@ return [
     ],
 
     // rabbitmq service
-    'microa' => [
+    'micro' => [
         'routes' => [
-            '/micro-a' => [
+            '/micro-b' => [
                 'method' => 'resource',
                 'action' => 'DemoController',
                 'auth' => false
             ],
         ],
         'rpc' => [
-            'key' => env('CONFIG_QUEUE') . 'micro_a_rpc',
-            'queue' => env('CONFIG_QUEUE') . 'micro_a_rpc',
-            'exchange' => env('CONFIG_QUEUE') . 'micro_a_rpc'
+            'key' => 'micro_b_rpc',
+            'queue' => 'micro_b_rpc',
+            'exchange' => 'micro_b_rpc'
         ],
-        'worker' => [
-            'queue' => 'micro_a_worker_queue'
-        ]
+        'queue' => 'micro_work_queue'
     ],
 ];
