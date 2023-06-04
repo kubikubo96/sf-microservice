@@ -25,6 +25,6 @@ return [
             'queue' => 'micro_a_rpc',
             'exchange' => 'micro_a_rpc'
         ],
-        'queue' => 'micro_a_work_queue'
+        'queue' => 'micro_work_queue'
     ],
 ];
