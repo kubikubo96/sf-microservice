@@ -12,7 +12,7 @@ return [
     ],
 
     // rabbitmq service
-    'microa' => [
+    'micro' => [
         'routes' => [
             '/micro-a' => [
                 'method' => 'resource',
@@ -25,8 +25,6 @@ return [
             'queue' => 'micro_a_rpc',
             'exchange' => 'micro_a_rpc'
         ],
-        'worker' => [
-            'queue' => 'micro_a_worker_queue'
-        ]
+        'queue' => 'micro_a_work_queue'
     ],
 ];

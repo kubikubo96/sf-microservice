@@ -10,8 +10,16 @@ class DemoController extends Controller
     public function send()
     {
         try {
-            $workQueue = new WorkQueue('send-data');
-            $workQueue->call("Hello World!");
+            $workQueue = new WorkQueue(config('rabbitmq.micro.queue'));
+
+            $data = [
+                'user' => 'tiennt171',
+                'age' => 18,
+                'email' => 'tiennt171@ghtk.co',
+                'phone' => '0977189946'
+            ];
+
+            $workQueue->call(json_encode($data));
 
             return Response::data();
         } catch (\Throwable $e) {
