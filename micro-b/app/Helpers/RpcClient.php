@@ -3,6 +3,7 @@
 namespace App\Helpers;
 
 use PhpAmqpLib\Connection\AMQPStreamConnection;
+use PhpAmqpLib\Exception\AMQPIOException;
 use PhpAmqpLib\Message\AMQPMessage;
 
 /**
@@ -12,8 +13,6 @@ use PhpAmqpLib\Message\AMQPMessage;
 class RpcClient
 {
     private $connection;
-    private $channel;
-    private $callback_queue;
     private $response;
     private $corr_id;
     public $queue;
@@ -32,7 +31,11 @@ class RpcClient
                 config('rabbitmq.connection.user'),
                 config('rabbitmq.connection.password')
             );
+        } catch (AMQPIOException $e) {
+            return false;
         } catch (\Throwable $e) {
+            return false;
+        } catch (\Exception $e) {
             return false;
         }
         return $this->connection;

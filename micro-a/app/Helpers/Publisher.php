@@ -3,6 +3,7 @@
 namespace App\Helpers;
 
 use PhpAmqpLib\Connection\AMQPStreamConnection;
+use PhpAmqpLib\Exchange\AMQPExchangeType;
 use PhpAmqpLib\Message\AMQPMessage;
 
 /**
@@ -14,8 +15,7 @@ class Publisher
     public $queue;
     public $exchange;
 
-    public function __construct($queue, $exchange)
-    {
+    public function __construct($queue, $exchange){
         $this->queue = $queue;
         $this->exchange = $exchange;
 
@@ -32,11 +32,12 @@ class Publisher
      * @param  [json] $request
      * @return mixed
      */
-    public function call($request)
-    {
+    public function call($request){
         $channel = $this->connection->channel();
 
         $channel->queue_declare($this->queue, false, true, false, false);
+
+        $channel->exchange_declare($this->exchange, AMQPExchangeType::DIRECT, false, true, false);
 
         $channel->queue_bind($this->queue, $this->exchange);
 

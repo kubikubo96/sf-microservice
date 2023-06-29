@@ -3,6 +3,7 @@
 namespace App\Helpers;
 
 use PhpAmqpLib\Connection\AMQPStreamConnection;
+use PhpAmqpLib\Exchange\AMQPExchangeType;
 
 /**
  * RpcServer Class
@@ -31,9 +32,17 @@ class RpcServer
 
         $channel->queue_declare($queue, false, true, false, false);
 
+        $channel->exchange_declare($exchange, AMQPExchangeType::DIRECT, false, true, false);
+
         $channel->queue_bind($queue, $exchange);
 
+        $channel->basic_qos(null, 1, null);
         $channel->basic_consume($queue, $consumer_tag, false, true, false, false, $callback);
+
+        // Loop as long as the channel has callbacks registered
+        while ($channel->is_consuming()) {
+            $channel->wait();
+        }
 
         $channel->close();
         $this->connection->close();

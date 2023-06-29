@@ -2,16 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\Helpers\Auth;
-use App\Helpers\LogHelper;
-use App\Library\CGlobal;
-use App\Repositories\LogRepository;
-use App\Services\TelegramService;
-use App\Services\UserClient;
+use App\Helpers\ListenQueue;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use PhpAmqpLib\Connection\AMQPStreamConnection;
 
 class StoreLogCommand extends Command
 {
@@ -44,48 +37,14 @@ class StoreLogCommand extends Command
      */
     public function handle()
     {
-        $queue = config('rabbitmq.micro.queue');
-        $connection = $this->connection();
-        $channel = $connection->channel();
-        $channel->basic_consume($queue, '', false, true, false, false, [new StoreLogCommand(), 'storeLog']);
-
-        while ($channel->is_open()) {
-            $channel->wait();
-        }
-
-        $channel->close();
-        $connection->close();
+        (new ListenQueue(config('rabbitmq.micro.queue'), function ($request) {
+            try {
+                $attribute = json_decode($request->body, true);
+                Log::info(json_encode($attribute));
+            } catch (\Exception $e) {
+                Log::error('Error: ' . $e->getMessage());
+            }
+        }))->listen();
     }
 
-    /**
-     * Connection work queue
-     *
-     * @return AMQPStreamConnection
-     */
-    public function connection(): AMQPStreamConnection
-    {
-        return new AMQPStreamConnection(
-            config('rabbitmq.connection.host'),
-            config('rabbitmq.connection.port'),
-            config('rabbitmq.connection.user'),
-            config('rabbitmq.connection.password'),
-            config('rabbitmq.connection.vhost')
-        );
-    }
-
-    /**
-     * Store log from service
-     *
-     * @param $request
-     */
-    public static function storeLog($request)
-    {
-        try {
-            $attribute = json_decode($request->body, true);
-            Log::info(json_encode($attribute));
-        } catch (\Exception $e) {
-            TelegramService::sendError($e, $request->body);
-            Log::error('[Exception StoreLogCommand - storeLog] ' . $e->getMessage());
-        }
-    }
 }
