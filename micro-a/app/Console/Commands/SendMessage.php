@@ -53,6 +53,7 @@ class SendMessage extends Command
             'phone' => '0977189946'
         ];
 
+        $this->info("Send message!");
         $workQueue->producer(json_encode($data));
     }
 
@@ -64,6 +65,7 @@ class SendMessage extends Command
             'message' => 'You are my world!'
         ];
 
+        $this->info("Send message!");
         $publisher->call(json_encode($message));
     }
 }

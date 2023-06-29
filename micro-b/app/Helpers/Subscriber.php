@@ -4,7 +4,6 @@ namespace App\Helpers;
 
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 use PhpAmqpLib\Exchange\AMQPExchangeType;
-use PhpAmqpLib\Message\AMQPMessage;
 
 /**
  * Publisher Class helper
@@ -12,12 +11,10 @@ use PhpAmqpLib\Message\AMQPMessage;
 class Subscriber
 {
     private $connection;
-    private $queue;
     private $exchange;
 
-    public function __construct($queue, $exchange)
+    public function __construct($exchange)
     {
-        $this->queue = $queue;
         $this->exchange = $exchange;
 
         $this->connection = new AMQPStreamConnection(
@@ -38,13 +35,13 @@ class Subscriber
     {
         $channel = $this->connection->channel();
 
-        $channel->queue_declare($this->queue, false, true, false, false);
-
         $channel->exchange_declare($this->exchange, AMQPExchangeType::DIRECT, false, true, false);
 
-        $channel->queue_bind($this->queue, $this->exchange);
+        [$queueName] = $channel->queue_declare("", false, false, true, false);
 
-        $channel->basic_consume($this->queue, '', false, true, false, false, $callback);
+        $channel->queue_bind($queueName, $this->exchange);
+
+        $channel->basic_consume($queueName, '', false, true, false, false, $callback);
 
         while ($channel->is_open()) {
             $channel->wait();

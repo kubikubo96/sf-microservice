@@ -37,9 +37,7 @@ class ReceiveNotification extends Command
      */
     public function handle()
     {
-        (new Subscriber(
-            config('rabbitmq.micro.ps.queue'), config('rabbitmq.micro.ps.exchange')
-        ))->call(function ($request) {
+        (new Subscriber(config('rabbitmq.micro.ps.exchange')))->call(function ($request) {
             try {
                 $this->info("Receive message!");
                 Log::info($request->body);
