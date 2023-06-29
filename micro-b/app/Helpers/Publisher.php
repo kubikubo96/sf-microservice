@@ -12,10 +12,11 @@ use PhpAmqpLib\Message\AMQPMessage;
 class Publisher
 {
     private $connection;
-    public $queue;
-    public $exchange;
+    private $queue;
+    private $exchange;
 
-    public function __construct($queue, $exchange){
+    public function __construct($queue, $exchange)
+    {
         $this->queue = $queue;
         $this->exchange = $exchange;
 
@@ -31,8 +32,10 @@ class Publisher
      * Publisher call
      * @param  [json] $request
      * @return mixed
+     * @throws \Exception
      */
-    public function call($request){
+    public function call($request)
+    {
         $channel = $this->connection->channel();
 
         $channel->queue_declare($this->queue, false, true, false, false);

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\Publisher;
 use App\Helpers\Response;
 use App\Helpers\WorkQueue;
 
@@ -10,7 +11,7 @@ class DemoController extends Controller
     public function send()
     {
         try {
-            $workQueue = new WorkQueue(config('rabbitmq.micro.queue'));
+            $workQueue = new WorkQueue(config('rabbitmq.micro.wk'));
 
             $data = [
                 'user' => 'tiennt171',
@@ -27,4 +28,20 @@ class DemoController extends Controller
         }
     }
 
+    public function sendNotify()
+    {
+        try {
+            $publisher = new Publisher(config('rabbitmq.micro.ps.queue'), config('rabbitmq.micro.ps.exchange'));
+
+            $message = [
+                'message' => 'You are my world!'
+            ];
+
+            $publisher->call(json_encode($message));
+
+            return Response::data();
+        } catch (\Throwable $e) {
+            return Response::dataError($e->getMessage());
+        }
+    }
 }

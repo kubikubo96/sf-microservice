@@ -32,7 +32,7 @@ class ListenQueue
      *
      * @throws \Exception
      */
-    public function listen()
+    public function call()
     {
         $channel = $this->connection->channel();
         $channel->basic_consume($this->queue, '', false, true, false, false, $this->callback);

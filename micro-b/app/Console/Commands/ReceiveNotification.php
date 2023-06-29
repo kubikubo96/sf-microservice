@@ -2,25 +2,25 @@
 
 namespace App\Console\Commands;
 
-use App\Helpers\ListenQueue;
+use App\Helpers\Subscriber;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
-class StoreLogCommand extends Command
+class ReceiveNotification extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'work-queue:log';
+    protected $signature = 'receive:noty';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Work queue store log';
+    protected $description = 'Subscribe receive noty';
 
     /**
      * Create a new command instance.
@@ -37,14 +37,15 @@ class StoreLogCommand extends Command
      */
     public function handle()
     {
-        (new ListenQueue(config('rabbitmq.micro.queue'), function ($request) {
+        (new Subscriber(
+            config('rabbitmq.micro.ps.queue'), config('rabbitmq.micro.ps.exchange')
+        ))->call(function ($request) {
             try {
-                $attribute = json_decode($request->body, true);
-                Log::info(json_encode($attribute));
+                Log::info($request->body);
             } catch (\Exception $e) {
                 Log::error('Error: ' . $e->getMessage());
             }
-        }))->listen();
+        });
     }
 
 }

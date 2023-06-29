@@ -2,10 +2,9 @@
 
 namespace App\Console\Commands;
 
+use App\Helpers\ListenQueue;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use PhpAmqpLib\Connection\AMQPStreamConnection;
 
 class ListenWorkQueue extends Command
 {
@@ -14,7 +13,7 @@ class ListenWorkQueue extends Command
      *
      * @var string
      */
-    protected $signature = 'store:listen';
+    protected $signature = 'work-queue:log';
 
     /**
      * The console command description.
@@ -38,49 +37,13 @@ class ListenWorkQueue extends Command
      */
     public function handle()
     {
-        $queue = config('rabbitmq.micro.queue');
-        $connection = $this->connection();
-        $channel = $connection->channel();
-        $channel->basic_consume($queue, '', false, true, false, false, [new ListenWorkQueue(), 'storeLog']);
-
-        $channel->close();
-        $connection->close();
-    }
-
-    /**
-     * Connection work queue
-     *
-     * @return AMQPStreamConnection
-     */
-    public function connection(): AMQPStreamConnection
-    {
-        return new AMQPStreamConnection(
-            config('rabbitmq.connection.host'),
-            config('rabbitmq.connection.port'),
-            config('rabbitmq.connection.user'),
-            config('rabbitmq.connection.password'),
-            config('rabbitmq.connection.vhost')
-        );
-    }
-
-    /**
-     * Store log from service
-     *
-     * @param $request
-     */
-    public static function storeLog($request)
-    {
-        try {
-            $attribute = json_decode($request->body, true);
+        (new ListenQueue(config('rabbitmq.micro.wk'), function ($request) {
             try {
-                DB::beginTransaction();
-                DB::commit();
+                Log::info($request->body);
             } catch (\Exception $e) {
-                Log::error('Error Store: ' . $e->getMessage());
-                DB::rollBack();
+                Log::error('Error: ' . $e->getMessage());
             }
-        } catch (\Exception $e) {
-            Log::error('Error: ' . $e->getMessage());
-        }
+        }))->call();
     }
+
 }

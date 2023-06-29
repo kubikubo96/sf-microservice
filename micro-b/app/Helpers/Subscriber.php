@@ -9,7 +9,7 @@ use PhpAmqpLib\Message\AMQPMessage;
 /**
  * Publisher Class helper
  */
-class Publisher
+class Subscriber
 {
     private $connection;
     private $queue;
@@ -34,7 +34,7 @@ class Publisher
      * @return mixed
      * @throws \Exception
      */
-    public function call($request)
+    public function call($callback)
     {
         $channel = $this->connection->channel();
 
@@ -44,12 +44,11 @@ class Publisher
 
         $channel->queue_bind($this->queue, $this->exchange);
 
-        $message = new AMQPMessage($request, [
-            'content_type' => 'text/plain',
-            'delivery_mode' => AMQPMessage::DELIVERY_MODE_PERSISTENT
-        ]);
+        $channel->basic_consume($this->queue, '', false, true, false, false, $callback);
 
-        $channel->basic_publish($message, $this->exchange);
+        while ($channel->is_open()) {
+            $channel->wait();
+        }
 
         $channel->close();
         $this->connection->close();

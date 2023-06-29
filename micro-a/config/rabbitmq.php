@@ -25,6 +25,10 @@ return [
             'queue' => 'micro_a_rpc',
             'exchange' => 'micro_a_rpc'
         ],
-        'queue' => 'micro_work_queue'
+        'wk' => 'wq_micro_work_queue',
+        'ps' => [
+            'exchange' => 'ps_exchange_micro_notification',
+            'queue' => 'ps_queue_micro_notification',
+        ],
     ],
 ];
