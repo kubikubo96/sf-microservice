@@ -30,9 +30,6 @@ class Publisher
 
     /**
      * Publisher call
-     * @param  [json] $request
-     * @return mixed
-     * @throws \Exception
      */
     public function call($request)
     {

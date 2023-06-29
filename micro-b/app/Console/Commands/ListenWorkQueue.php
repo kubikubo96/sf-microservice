@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Helpers\ListenQueue;
+use App\Helpers\WorkQueue;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
@@ -37,13 +38,13 @@ class ListenWorkQueue extends Command
      */
     public function handle()
     {
-        (new ListenQueue(config('rabbitmq.micro.wk'), function ($request) {
+        (new WorkQueue(config('rabbitmq.micro.wk')))->consumer(function ($request) {
             try {
                 Log::info($request->body);
             } catch (\Exception $e) {
                 Log::error('Error: ' . $e->getMessage());
             }
-        }))->call();
+        });
     }
 
 }

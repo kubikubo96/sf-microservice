@@ -12,11 +12,11 @@ class WorkQueue
 {
     private $queue;
     private $connection;
+    private $channel;
 
     public function __construct($queue)
     {
         $this->queue = $queue;
-
         $this->connection = new AMQPStreamConnection(
             config('rabbitmq.connection.host'),
             config('rabbitmq.connection.port'),
@@ -24,23 +24,35 @@ class WorkQueue
             config('rabbitmq.connection.password'),
             config('rabbitmq.connection.vhost')
         );
+        $this->channel = $this->connection->channel();
     }
 
     /**
-     * Work queue call
-     *
-     * @param $data
-     * @throws \Exception
+     * Work queue producer
      */
-    public function call($data)
+    public function producer($request)
     {
-        $channel = $this->connection->channel();
-        $channel->queue_declare($this->queue, false, true, false, false);
+        $this->channel->queue_declare($this->queue, false, true, false, false);
 
-        $message = new AMQPMessage($data);
-        $channel->basic_publish($message, '', $this->queue);
+        $message = new AMQPMessage($request);
+        $this->channel->basic_publish($message, '', $this->queue);
 
-        $channel->close();
+        $this->channel->close();
+        $this->connection->close();
+    }
+
+    /**
+     * Work queue consumer
+     */
+    public function consumer($callback)
+    {
+        $this->channel->basic_consume($this->queue, '', false, true, false, false, $callback);
+
+        while ($this->channel->is_open()) {
+            $this->channel->wait();
+        }
+
+        $this->channel->close();
         $this->connection->close();
     }
 }

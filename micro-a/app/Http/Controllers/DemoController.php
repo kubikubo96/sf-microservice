@@ -20,7 +20,7 @@ class DemoController extends Controller
                 'phone' => '0977189946'
             ];
 
-            $workQueue->call(json_encode($data));
+            $workQueue->producer(json_encode($data));
 
             return Response::data();
         } catch (\Throwable $e) {
