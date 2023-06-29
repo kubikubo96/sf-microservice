@@ -2,7 +2,6 @@
 
 namespace App\Console\Commands;
 
-use App\Helpers\ListenQueue;
 use App\Helpers\WorkQueue;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
