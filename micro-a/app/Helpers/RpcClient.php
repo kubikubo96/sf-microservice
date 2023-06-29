@@ -89,6 +89,10 @@ class RpcClient
                 }
             }
 
+            while ($this->channel->is_open()) {
+                $this->channel->wait();
+            }
+
             $this->channel->close();
             $this->connection->close();
 

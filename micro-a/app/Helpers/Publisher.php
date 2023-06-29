@@ -47,6 +47,10 @@ class Publisher
 
         $channel->basic_publish($message, $this->exchange);
 
+        while ($channel->is_open()) {
+            $channel->wait();
+        }
+
         $channel->close();
         $this->connection->close();
     }

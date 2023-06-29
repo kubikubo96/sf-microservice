@@ -10,8 +10,10 @@ use Illuminate\Support\Facades\Log;
  */
 class Route
 {
-    public function __construct(private $route)
+    protected $route;
+    public function __construct($route)
     {
+        $this->route = $route;
     }
 
     public function response($body)
