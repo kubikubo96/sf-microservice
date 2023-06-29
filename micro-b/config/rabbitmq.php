@@ -14,16 +14,16 @@ return [
     // rabbitmq service
     'micro' => [
         'routes' => [
-            '/micro-b' => [
+            '/micro-a' => [
                 'method' => 'resource',
                 'action' => 'DemoController',
                 'auth' => false
             ],
         ],
         'rpc' => [
-            'key' => 'micro_b_rpc',
-            'queue' => 'micro_b_rpc',
-            'exchange' => 'micro_b_rpc'
+            'key' => 'micro_a_rpc',
+            'queue' => 'micro_a_rpc',
+            'exchange' => 'micro_a_rpc'
         ],
         'queue' => 'micro_work_queue'
     ],

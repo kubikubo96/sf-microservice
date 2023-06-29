@@ -1,16 +1,22 @@
 <?php
 
-namespace App\Helpers;
+namespace App\Services;
 
 use PhpAmqpLib\Connection\AMQPStreamConnection;
+use PhpAmqpLib\Message\AMQPMessage;
 
 /**
  * Work Queue Class helper
  */
-class ListenQueue
+class SendWorkQueue
 {
-    public function __construct(private $queue, private $callback, private $connection = null)
+    private $queue;
+    private $connection;
+
+    public function __construct($queue)
     {
+        $this->queue = $queue;
+
         $this->connection = new AMQPStreamConnection(
             config('rabbitmq.connection.host'),
             config('rabbitmq.connection.port'),
@@ -21,13 +27,18 @@ class ListenQueue
     }
 
     /**
-     * Work queue listen
+     * Work queue call
      *
+     * @param $request
+     * @throws \Exception
      */
-    public function listen()
+    public function call($request)
     {
         $channel = $this->connection->channel();
-        $channel->basic_consume($this->queue, '', false, true, false, false, $this->callback);
+        $channel->queue_declare($this->queue, false, true, false, false);
+
+        $message = new AMQPMessage($request);
+        $channel->basic_publish($message, '', $this->queue);
 
         $channel->close();
         $this->connection->close();

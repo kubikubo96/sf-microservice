@@ -20,7 +20,7 @@ class StoreLogCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'store:listen';
+    protected $signature = 'work-queue:log';
 
     /**
      * The console command description.

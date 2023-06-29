@@ -35,10 +35,6 @@ class RpcServer
 
         $channel->basic_consume($queue, $consumer_tag, false, true, false, false, $callback);
 
-        while ($channel->is_open()) {
-            $channel->wait();
-        }
-
         $channel->close();
         $this->connection->close();
     }
