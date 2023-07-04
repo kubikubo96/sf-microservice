@@ -75,7 +75,7 @@ class RpcClient
             $channel->basic_publish($message, '', $this->queue);
 
 
-            $timeOut = 10; // set timeout call
+            $timeOut = 2; // set timeout call
             while (!$this->response) {
                 try {
                     $channel->wait(null, false, $timeOut);

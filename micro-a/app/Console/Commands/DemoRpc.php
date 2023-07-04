@@ -40,6 +40,6 @@ class DemoRpc extends Command
     public function handle()
     {
         $rpcClient = new RpcClient('rpc_queue');
-        $this->info('DATA: ' . $rpcClient->call('HELLO'));
+        $this->info('DATA: ' . $rpcClient->call(10));
     }
 }
