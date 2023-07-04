@@ -15,19 +15,16 @@ class RpcServer
 
     public function __construct()
     {
-        $host = config('rabbitmq.connection.host');
-        $port = config('rabbitmq.connection.port');
-        $user = config('rabbitmq.connection.user');
-        $password = config('rabbitmq.connection.password');
-        $vhost = config('rabbitmq.connection.vhost');
-
-        $this->connection = new AMQPStreamConnection($host, $port, $user, $password, $vhost);
+        $this->connection = new AMQPStreamConnection(
+            config('rabbitmq.connection.host'),
+            config('rabbitmq.connection.port'),
+            config('rabbitmq.connection.user'),
+            config('rabbitmq.connection.password')
+        );
     }
 
     public function handle($queue, $exchange, $callback)
     {
-        $consumer_tag = config('rabbitmq.connection.consumer');
-
         $channel = $this->connection->channel();
 
         $channel->queue_declare($queue, false, true, false, false);
@@ -37,10 +34,9 @@ class RpcServer
         $channel->queue_bind($queue, $exchange);
 
         $channel->basic_qos(null, 1, null);
-        $channel->basic_consume($queue, $consumer_tag, false, true, false, false, $callback);
+        $channel->basic_consume($queue, '', false, false, false, false, $callback);
 
-        // Loop as long as the channel has callbacks registered
-        while ($channel->is_consuming()) {
+        while ($channel->is_open()) {
             $channel->wait();
         }
 
