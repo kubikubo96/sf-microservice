@@ -27,10 +27,10 @@ class RpcServer
     public function handle($queue, $exchange, $callback){
         $channel = $this->connection->channel();
 
-        $channel->queue_declare('rpc_queue', false, false, false, false);
+        $channel->queue_declare($queue, false, false, false, false);
 
         $channel->basic_qos(null, 1, null);
-        $channel->basic_consume('rpc_queue', '', false, false, false, false, $callback);
+        $channel->basic_consume($queue, '', false, false, false, false, $callback);
 
         while ($channel->is_open()) {
             $channel->wait();

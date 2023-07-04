@@ -126,7 +126,7 @@ class ReplyRpc extends Command
         };
 
         $rpcServer = new RpcServer();
-        $rpcServer->handle('rpc_queue', $this->exchange, $callback);
+        $rpcServer->handle($this->queue, $this->exchange, $callback);
     }
 
     public function logData($request)
