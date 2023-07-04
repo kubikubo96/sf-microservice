@@ -77,12 +77,4 @@ class ReplyRpc extends Command
 
         $this->publish($request, $body);
     }
-
-    private function log($request, $response)
-    {
-        logger()->info('app.requests', [
-            'request' => $request,
-            'response' => $response
-        ]);
-    }
 }

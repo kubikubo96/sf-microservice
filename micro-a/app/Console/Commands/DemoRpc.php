@@ -40,6 +40,6 @@ class DemoRpc extends Command
     public function handle()
     {
         $rpcClient = new RpcClient(config('rabbitmq.micro.rpc.queue'));
-        $this->info('DATA: ' . $rpcClient->call(10));
+        $this->info('DATA: ' . $rpcClient->call(json_encode(['id' => 1])));
     }
 }
