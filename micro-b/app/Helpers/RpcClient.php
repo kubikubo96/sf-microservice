@@ -3,7 +3,6 @@
 namespace App\Helpers;
 
 use PhpAmqpLib\Connection\AMQPStreamConnection;
-use PhpAmqpLib\Exception\AMQPIOException;
 use PhpAmqpLib\Message\AMQPMessage;
 
 /**
@@ -14,8 +13,8 @@ class RpcClient
 {
     private $connection;
     private $response;
-    private $corr_id;
-    public $queue;
+    private $corrId;
+    private $queue;
 
     public function __construct($queue)
     {
@@ -24,26 +23,18 @@ class RpcClient
 
     private function connect()
     {
-        try {
-            $this->connection = new AMQPStreamConnection(
-                config('rabbitmq.connection.host'),
-                config('rabbitmq.connection.port'),
-                config('rabbitmq.connection.user'),
-                config('rabbitmq.connection.password')
-            );
-        } catch (AMQPIOException $e) {
-            return false;
-        } catch (\Throwable $e) {
-            return false;
-        } catch (\Exception $e) {
-            return false;
-        }
+        $this->connection = new AMQPStreamConnection(
+            config('rabbitmq.connection.host'),
+            config('rabbitmq.connection.port'),
+            config('rabbitmq.connection.user'),
+            config('rabbitmq.connection.password')
+        );
         return $this->connection;
     }
 
     public function onResponse($response)
     {
-        if ($response->get('correlation_id') == $this->corr_id) {
+        if ($response->get('correlation_id') == $this->corrId) {
             $this->response = $response->body;
         }
     }
@@ -51,16 +42,16 @@ class RpcClient
     public function call($request)
     {
         if ($this->connect()) {
-            $this->channel = $this->connection->channel();
-            list($this->callback_queue, ,) = $this->channel->queue_declare(
-                "",
+            $channel = $this->connection->channel();
+            list($callbackQueue, ,) = $channel->queue_declare(
+                '',
                 false,
                 false,
                 true,
                 false
             );
-            $this->channel->basic_consume(
-                $this->callback_queue,
+            $channel->basic_consume(
+                $callbackQueue,
                 '',
                 false,
                 true,
@@ -72,27 +63,28 @@ class RpcClient
                 ]
             );
             $this->response = null;
-            $this->corr_id = uniqid();
+            $this->corrId = uniqid();
 
             $message = new AMQPMessage(
                 $request,
                 [
-                    'correlation_id' => $this->corr_id,
-                    'reply_to' => $this->callback_queue
+                    'correlation_id' => $this->corrId,
+                    'reply_to' => $callbackQueue
                 ]
             );
-            $this->channel->basic_publish($message, '', $this->queue);
+            $channel->basic_publish($message, '', $this->queue);
 
-            $timeOut = 2; // set timeout call
+            $timeOut = 10; // set timeout call
             while (!$this->response) {
                 try {
-                    $this->channel->wait(null, false, $timeOut);
+                    $channel->wait(null, false, $timeOut);
                 } catch (\PhpAmqpLib\Exception\AMQPTimeoutException $e) {
+                    logger()->error($e);
                     break;
                 }
             }
 
-            $this->channel->close();
+            $channel->close();
             $this->connection->close();
 
             return $this->response;
