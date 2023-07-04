@@ -21,9 +21,9 @@ return [
             ],
         ],
         'rpc' => [
-            'key' => 'micro_a_rpc',
-            'queue' => 'micro_a_rpc',
-            'exchange' => 'micro_a_rpc'
+            'key' => 'key_micro_rpc',
+            'queue' => 'queue_micro_rpc',
+            'exchange' => 'exchange_micro_rpc'
         ],
         'wk' => 'wq_micro_work_queue',
         'ps' => [

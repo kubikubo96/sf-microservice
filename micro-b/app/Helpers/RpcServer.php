@@ -40,7 +40,7 @@ class RpcServer
         $channel->basic_consume($queue, $consumer_tag, false, true, false, false, $callback);
 
         // Loop as long as the channel has callbacks registered
-        while ($channel->is_consuming()) {
+        while ($channel->is_open()) {
             $channel->wait();
         }
 
