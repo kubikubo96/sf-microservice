@@ -15,19 +15,19 @@ class RpcServer
     private $connection;
 
     public function __construct(){
-        $this->connection = new AMQPStreamConnection(
-            config('rabbitmq.connection.host'),
-            config('rabbitmq.connection.port'),
-            config('rabbitmq.connection.user'),
-            config('rabbitmq.connection.password'),
-            config('rabbitmq.connection.vhost')
-        );
+        $host = config('rabbitmq.connection.host');
+        $port = config('rabbitmq.connection.port');
+        $user = config('rabbitmq.connection.user');
+        $password = config('rabbitmq.connection.password');
+        $vhost = config('rabbitmq.connection.vhost');
+
+        $this->connection = new AMQPStreamConnection($host, $port, $user, $password, $vhost);
     }
 
     public function handle($queue, $exchange, $callback){
         $channel = $this->connection->channel();
 
-        $channel->queue_declare($queue, false, false, false, false);
+        $channel->queue_declare($queue, false, true, false, false);
 
         $channel->basic_qos(null, 1, null);
         $channel->basic_consume($queue, '', false, false, false, false, $callback);
