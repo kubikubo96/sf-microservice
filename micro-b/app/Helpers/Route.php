@@ -18,9 +18,6 @@ class Route
 
     public function response($body)
     {
-        $action = '';
-        $parameters = [$body];
-
         $header = Arr::get($body, 'headerParam', []);
         $GLOBALS['header'] = $header;
         $token = Arr::get($header, 'authorization', '');
@@ -31,81 +28,32 @@ class Route
             return Response::dataError('Method not allow');
         }
 
-        if (strtolower($this->route['method']) === 'resource') {
-            $controller = 'App\Http\Controllers\\' . $this->route['action'];
+        if ($request_method !== strtolower($this->route['method'])) {
+            return Response::dataError('Method not allow');
+        }
 
-            // Method GET
-            if ($request_method === 'get') {
-                $id = Arr::get($body, 'pathParam', '');
-                if ($id) {
-                    // get by id
-                    $action = 'show';
-                    $parameters = [$id];
-                } else {
-                    // get list
-                    $action = 'list';
-                    $url_param = Arr::get($body, 'urlParam', []);
-                    $request = $url_param ? Request::extracUrlParam($url_param) : [];
-                    $request['token'] = $token;
-                    $parameters = [$request];
-                }
-            }
-            // Method POST
-            if ($request_method === 'post') {
-                $action = 'store';
-                $request = Arr::get($body, 'bodyParam', []);
-                $request['token'] = $token;
-                $parameters = [$request];
-            }
-            // Method PUT
-            if ($request_method === 'put') {
-                $action = 'update';
-                $id = Arr::get($body, 'pathParam', '');
-                $request = Arr::get($body, 'bodyParam', []);
-                $request['token'] = $token;
+        $route_arr = explode('@', $this->route['action']);
 
-                if (!$id) {
-                    return Response::dataError('Method not allow');
-                }
-                $parameters = [$id, $request];
-            }
-            // Method DELETE
-            if ($request_method === 'delete') {
-                $action = 'destroy';
-                $id = Arr::get($body, 'pathParam', '');
-                if (!$id) {
-                    return Response::dataError('Method not allow');
-                }
-                $parameters = [$id];
-            }
+        if (count($route_arr) !== 2) {
+            return Response::dataError('API Not Found', 404);
+        }
+
+        $controller = 'App\Services\RPC\\' . $route_arr[0];
+        $action = $route_arr[1];
+
+        if ($request_method === 'get') {
+            $url_param = Arr::get($body, 'urlParam', []);
+            $request = $url_param ? Request::extracUrlParam($url_param) : [];
+            $request['token'] = $token;
+            $parameters = [$request];
         } else {
-            if ($request_method !== strtolower($this->route['method'])) {
-                return Response::dataError('Method not allow');
-            }
-
-            $route_arr = explode('@', $this->route['action']);
-
-            if (count($route_arr) !== 2) {
-                return Response::dataError('API Not Found', 404);
-            }
-
-            $controller = 'App\Http\Controllers\\' . $route_arr[0];
-            $action = $route_arr[1];
-
-            if ($request_method === 'get') {
-                $url_param = Arr::get($body, 'urlParam', []);
-                $request = $url_param ? Request::extracUrlParam($url_param) : [];
-                $request['token'] = $token;
-                $parameters = [$request];
+            $request = Arr::get($body, 'bodyParam', []);
+            $request['token'] = $token;
+            $id = Arr::get($body, 'pathParam', '');
+            if ($id) {
+                $parameters = [$request, $id];
             } else {
-                $request = Arr::get($body, 'bodyParam', []);
-                $request['token'] = $token;
-                $id = Arr::get($body, 'pathParam', '');
-                if ($id) {
-                    $parameters = [$request, $id];
-                } else {
-                    $parameters = [$request];
-                }
+                $parameters = [$request];
             }
         }
 

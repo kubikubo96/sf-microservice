@@ -15,9 +15,8 @@ return [
     'micro' => [
         'routes' => [
             '/micro-a' => [
-                'method' => 'resource',
-                'action' => 'DemoController',
-                'auth' => false
+                'method' => 'GET',
+                'action' => 'DemoRpcService@findUserById',
             ],
         ],
         'rpc' => [
