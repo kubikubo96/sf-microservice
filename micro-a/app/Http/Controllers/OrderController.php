@@ -23,7 +23,7 @@ class OrderController extends Controller
             $data = [
                 'name' => 'Lamborghini',
                 'price' => 1000,
-                'status' => 'success'
+                'status' => 'unpaid'
             ];
             $order = Order::create($data);
 
