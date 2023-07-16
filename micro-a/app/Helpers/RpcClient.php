@@ -87,8 +87,8 @@ class RpcClient
             $channel->close();
             $this->connection->close();
 
-            return $this->response;
+            return $this->response ? json_decode($this->response) : Response::dataError('Rabitmq not response', 400);
         }
-        return json_encode(Response::dataError('Rabitmq not response'));
+        return Response::dataError('Rabitmq not response');
     }
 }

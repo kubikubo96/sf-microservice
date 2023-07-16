@@ -14,9 +14,13 @@ return [
     // rabbitmq service
     'micro' => [
         'routes' => [
-            '/micro-a' => [
+            '/demo' => [
                 'method' => 'GET',
                 'action' => 'DemoRpcService@findUserById',
+            ],
+            '/payment' => [
+                'method' => 'POST',
+                'action' => 'PaymentOrder@paymentOrder',
             ],
         ],
         'rpc' => [
