@@ -44,7 +44,7 @@ class OrderController extends Controller
     public function createOrderV2(Request $request)
     {
         try {
-            \DB::beginTransaction();
+            DB::beginTransaction();
             $data = [
                 'name' => 'Lamborghini',
                 'price' => 1000,
@@ -64,14 +64,14 @@ class OrderController extends Controller
 
             $response = $rpcClient->call(json_encode($request));
             if (!$response['success']) {
-                \DB::rollBack();
+                DB::rollBack();
                 return Response::dataError($response['message']);
             }
 
-            \DB::commit();
-            return Response::dataError($order);
+            DB::commit();
+            return Response::data($order);
         } catch (\Throwable $e) {
-            \DB::rollBack();
+            DB::rollBack();
             return Response::dataError($e->getMessage());
         }
     }
