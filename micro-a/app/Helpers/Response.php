@@ -17,7 +17,7 @@ class Response
         ];
     }
 
-    public static function dataError($message = 'Forbidden', $status = 403)
+    public static function dataError($message = 'Bad Request', $status = 400)
     {
         return self::data([], $message, $status, false);
     }

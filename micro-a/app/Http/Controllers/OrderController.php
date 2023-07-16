@@ -20,8 +20,11 @@ class OrderController extends Controller
     {
         try {
             DB::beginTransaction();
-            $data = $request->only(['name', 'price']);
-            $data['status'] = 'unpaid';
+            $data = [
+                'name' => 'Lamborghini',
+                'price' => 1000,
+                'status' => 'success'
+            ];
             $order = Order::create($data);
 
             DB::commit();
@@ -42,8 +45,11 @@ class OrderController extends Controller
     {
         try {
             \DB::beginTransaction();
-            $data = $request->only(['name', 'price']);
-            $data['status'] = 'success';
+            $data = [
+                'name' => 'Lamborghini',
+                'price' => 1000,
+                'status' => 'success'
+            ];
             $order = Order::create($data);
 
             $rpcClient = new RpcClient(config('rabbitmq.micro.rpc.queue'));
