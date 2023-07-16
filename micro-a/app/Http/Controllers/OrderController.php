@@ -43,6 +43,7 @@ class OrderController extends Controller
         try {
             \DB::beginTransaction();
             $data = $request->only(['name', 'price']);
+            $data['status'] = 'success';
             $order = Order::create($data);
 
             $rpcClient = new RpcClient(config('rabbitmq.micro.rpc.queue'));
