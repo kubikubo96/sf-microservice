@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Helpers\Response;
 use App\Helpers\RpcClient;
+use App\Helpers\WorkQueue;
 use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -25,7 +26,10 @@ class OrderController extends Controller
                 'price' => 1000,
                 'status' => 'unpaid'
             ];
+
             $order = Order::create($data);
+            $workQueue = new WorkQueue(config('rabbitmq.micro.wk_payment_order'));
+            $workQueue->producer(json_encode(['order' => $order]));
 
             DB::commit();
             return Response::data($order);
