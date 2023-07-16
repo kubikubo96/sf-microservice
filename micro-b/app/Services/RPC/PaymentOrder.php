@@ -16,7 +16,7 @@ class PaymentOrder
             $payment = Payment::create(['order_id' => $order['id'], 'price' => $order['price'], 'status' => 'success']);
 
             DB::commit();
-            return Response::dataError($payment);
+            return Response::data($payment);
         } catch (\Throwable $e) {
             DB::rollBack();
             return Response::dataError($e->getMessage());
