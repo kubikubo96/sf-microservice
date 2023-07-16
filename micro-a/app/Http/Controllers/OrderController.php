@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\DB;
 class OrderController extends Controller
 {
     /**
-     * Tạo order. dựa vào status để xác định các service khác success
+     * Choreography-based saga. Tạo order. dựa vào status để xác định các service khác success.
      *
      * @param Request $request
      * @return array
@@ -36,7 +36,7 @@ class OrderController extends Controller
     }
 
     /**
-     * Tạo order. realtime rpc
+     * Choreography-based saga. Tạo order, realtime rpc, transaction từng service
      *
      * @param Request $request
      * @return array
