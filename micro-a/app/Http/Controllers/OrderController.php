@@ -9,7 +9,35 @@ use Illuminate\Http\Request;
 
 class OrderController extends Controller
 {
-    public function createOrder(Request $request)
+    /**
+     * Tạo order. dựa vào status để xác định các service khác success
+     *
+     * @param Request $request
+     * @return array
+     */
+    public function createOrderV1(Request $request)
+    {
+        try {
+            \DB::beginTransaction();
+            $data = $request->only(['name', 'price']);
+            $data['status'] = 'unpaid';
+            $order = Order::create($data);
+
+            \DB::commit();
+            return Response::data($order);
+        } catch (\Throwable $e) {
+            \DB::rollBack();
+            return Response::dataError($e->getMessage());
+        }
+    }
+
+    /**
+     * Tạo order. realtime rpc
+     *
+     * @param Request $request
+     * @return array
+     */
+    public function createOrderV2(Request $request)
     {
         try {
             \DB::beginTransaction();
