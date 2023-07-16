@@ -6,6 +6,7 @@ use App\Helpers\Response;
 use App\Helpers\RpcClient;
 use App\Models\Order;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
 {
@@ -18,15 +19,15 @@ class OrderController extends Controller
     public function createOrderV1(Request $request)
     {
         try {
-            \DB::beginTransaction();
+            DB::beginTransaction();
             $data = $request->only(['name', 'price']);
             $data['status'] = 'unpaid';
             $order = Order::create($data);
 
-            \DB::commit();
+            DB::commit();
             return Response::data($order);
         } catch (\Throwable $e) {
-            \DB::rollBack();
+            DB::rollBack();
             return Response::dataError($e->getMessage());
         }
     }
