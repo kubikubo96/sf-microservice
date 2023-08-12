@@ -40,7 +40,7 @@ class ListenWorkQueue extends Command
         (new WorkQueue(config('rabbitmq.micro.wk')))->consumer(function ($request) {
             try {
                 $this->info("Receive message!");
-                Log::info($request->body);
+                $this->info($request->body);
             } catch (\Exception $e) {
                 Log::error('Error: ' . $e->getMessage());
             }
