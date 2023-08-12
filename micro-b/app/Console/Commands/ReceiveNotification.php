@@ -40,6 +40,7 @@ class ReceiveNotification extends Command
         (new Subscriber(config('rabbitmq.micro.ps.exchange')))->call(function ($request) {
             try {
                 $this->info("Receive message!");
+                $this->info($request->body);
                 Log::info($request->body);
             } catch (\Exception $e) {
                 Log::error('Error: ' . $e->getMessage());
