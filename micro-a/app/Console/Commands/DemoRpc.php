@@ -51,7 +51,6 @@ class DemoRpc extends Command
 
         try {
             $response = $rpcClient->call(json_encode($request));
-            $response = json_decode($response, true);
             dump($response);
         } catch (\Exception $e) {
             $this->error($e->getMessage());
