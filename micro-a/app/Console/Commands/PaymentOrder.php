@@ -39,7 +39,7 @@ class PaymentOrder extends Command
     {
         (new WorkQueue(config('rabbitmq.micro.wk_payment_order')))->consumer(function ($request) {
             try {
-                $this->info("Receive message!");
+                $this->info("Payment Success!");
                 Log::info($request->body);
             } catch (\Exception $e) {
                 Log::error('Error: ' . $e->getMessage());
